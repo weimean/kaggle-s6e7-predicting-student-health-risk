@@ -1,0 +1,5 @@
+data/
+submissions/
+.venv/
+.ipynb_checkpoints/
+__pycache__/
