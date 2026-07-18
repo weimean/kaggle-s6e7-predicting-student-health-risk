@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Every notebook is written to teach: each modeling step carries markdown explaining *why*, what the alternatives were, and how to choose. This is a spec requirement, not decoration.
-- Metric is **accuracy** on hard labels; classes `at-risk` (86%), `unhealthy` (8.4%), `fit` (5.8%). Majority floor ≈ 0.859; target > 0.95.
+- Metric is **balanced accuracy** (mean per-class recall) on hard labels; classes `at-risk` (86%), `unhealthy` (8.4%), `fit` (5.8%). Majority floor = ⅓ (verified by probe submission); target > 0.95. All CV scoring uses `sklearn.metrics.balanced_accuracy_score`.
 - All CV uses the same fixed seed (42) and the same fold assignment so experiment deltas are comparable.
 - `data/` and `submissions/` are gitignored; notebooks and `experiments.md` are committed.
 - Notebooks must run top-to-bottom cleanly before commit (`jupyter nbconvert --execute`).
@@ -111,16 +111,16 @@ git commit -m "Milestone 1: EDA and majority-class baseline"
 
 - [ ] **Step 1: Write the CV notebook** with these sections, markdown-first as in Task 2:
   1. **Why CV before models** — teach: without a validation scheme you trust, every later experiment is noise. The public LB is itself a sample; chasing it overfits.
-  2. **Choosing the scheme** — teach why `StratifiedKFold(5, shuffle=True, random_state=42)` fits here (no groups, no time order, imbalanced target needs stratification; 5 folds balances stability vs runtime at 690k rows). Name the alternatives (GroupKFold, TimeSeriesSplit, repeated CV) and when each would apply.
-  3. **The harness** — implement `run_cv` and `make_submission` as specified in Interfaces. OOF accuracy is THE number every experiment reports.
-  4. **First model: LightGBM, near-default** — categoricals via `astype('category')` (teach: LightGBM's native categorical handling vs one-hot vs ordinal), missing values left as NaN (teach: GBMs route NaNs natively — a deliberate baseline choice that Milestone 3 experiments will challenge). `multiclass` objective, modest params (`n_estimators=1000`, `learning_rate=0.05`, early stopping on each fold).
-  5. **Results** — OOF accuracy, per-class recall (confusion matrix), fold-score spread. Teach: reading per-class errors under accuracy; where the model gives up on `fit`/`unhealthy`.
+  2. **Choosing the scheme** — teach why `StratifiedKFold(5, shuffle=True, random_state=42)` fits here (no groups, no time order; stratification is doubly important because balanced accuracy makes small-class recall estimates noisy; 5 folds balances stability vs runtime at 690k rows). Name the alternatives (GroupKFold, TimeSeriesSplit, repeated CV) and when each would apply.
+  3. **The harness** — implement `run_cv` and `make_submission` as specified in Interfaces. OOF **balanced accuracy** is THE number every experiment reports.
+  4. **First model: LightGBM, near-default** — categoricals via `astype('category')` (teach: LightGBM's native categorical handling vs one-hot vs ordinal), missing values left as NaN (teach: GBMs route NaNs natively — a deliberate baseline choice that Milestone 3 experiments will challenge). `multiclass` objective, modest params (`n_estimators=1000`, `learning_rate=0.05`, early stopping on each fold). Run with and without `class_weight='balanced'` — under balanced accuracy, weighting should *help*; show it.
+  5. **Results** — OOF balanced accuracy, per-class recall (confusion matrix), fold-score spread. Teach: balanced accuracy IS mean per-class recall, so the confusion matrix diagonal is the score decomposition; watch where the model sacrifices `fit`/`unhealthy` recall.
   6. **CV vs LB** — submit, then record CV score, LB score, and the gap in a markdown table. Teach: this gap is our trust calibration for the rest of the competition.
 
 - [ ] **Step 2: Execute top-to-bottom**
 
 Run: `uv run jupyter nbconvert --to notebook --execute --inplace notebooks/02-baseline-cv.ipynb`
-Expected: exits 0. OOF accuracy expected ≈ 0.94+ (LB top is 0.953).
+Expected: exits 0. OOF balanced accuracy expected ≈ 0.93+ (LB top is 0.953).
 
 - [ ] **Step 3: Submit and record**
 
@@ -154,7 +154,7 @@ git commit -m "Milestone 2: stratified 5-fold CV harness and LightGBM baseline"
 ```markdown
 # Experiment Log
 
-CV = 5-fold stratified OOF accuracy, seed 42. Baseline: notebook 02 LightGBM.
+CV = 5-fold stratified OOF balanced accuracy, seed 42. Baseline: notebook 02 LightGBM.
 
 | # | Hypothesis | Change | CV | Δ vs baseline | LB | Verdict |
 |---|-----------|--------|----|---------------|----|---------|
@@ -167,7 +167,7 @@ CV = 5-fold stratified OOF accuracy, seed 42. Baseline: notebook 02 LightGBM.
   3. **Ordinal encoding of ordered categoricals** — `stress_level`, `sleep_quality`, `physical_activity_level` have natural orders; map to integers. Hypothesis: monotone splits become cheaper for the tree.
   4. **Domain-derived interactions** — e.g. steps-per-exercise-minute, calories-per-step, BMI × activity, sleep duration × quality. Teach: GBMs learn interactions, but explicit ratios can shortcut what trees approximate with many splits.
   5. **Binning / rounding quirks** — if EDA §7 found synthetic-data artifacts (e.g. value clustering), encode them (frequency encoding, exact-value flags).
-- Keep-rule: an experiment is kept only if CV improves ≥ 0.0003 (above fold noise, which §2 of notebook 02 measured); teach why we need a threshold at all.
+- Keep-rule: an experiment is kept only if CV improves ≥ 0.0005 (balanced accuracy is noisier than plain accuracy because small-class recall has high variance; notebook 02 measures the fold spread to justify the threshold); teach why we need a threshold at all.
 
 - [ ] **Step 3: Consolidate** kept transformations into a single `build_features` cell; rerun CV on the combined set (teach: features that help alone can interact; combined ≠ sum of deltas). Final section: submission from the best combined model.
 
@@ -206,8 +206,8 @@ git commit -m "Milestone 3: feature engineering experiments with log"
 - [ ] **Step 1: Hyperparameter tuning section** — Optuna study (~30–50 trials on a 3-fold subsample for speed, teach the tradeoff) over the parameters that matter for LightGBM: `num_leaves`, `min_child_samples`, `learning_rate`, `feature_fraction`, `bagging_fraction`, `lambda_l1/l2`. Teach: which parameters matter and why; diminishing returns; re-verify the winner on the full 5-fold before trusting it. Log to `experiments.md`.
 
 - [ ] **Step 2: Imbalance section** — two competing approaches, run both:
-  - Class weights / `is_unbalance`. Teach: shifts the loss, usually *hurts* plain accuracy but show it rather than assert.
-  - **Per-class threshold optimization on OOF probabilities** — since the metric is accuracy on hard labels, tune the argmax: search per-class probability scaling factors on OOF predictions to maximize accuracy. Teach: decoupling probability estimation from decision rule; why OOF (not train) predictions make this safe.
+  - Class weights / `is_unbalance` refinement beyond notebook 02's first pass. Teach: under balanced accuracy, upweighting minority classes aligns training loss with the metric; explore weight scaling beyond sklearn's 'balanced' heuristic.
+  - **Per-class threshold optimization on OOF probabilities** — since the metric is accuracy on hard labels, tune the argmax: search per-class probability scaling factors on OOF predictions to maximize balanced accuracy. Teach: decoupling probability estimation from decision rule; why OOF (not train) predictions make this safe; why this matters even with class-weighted training.
 
 - [ ] **Step 3: Ensemble section** —
   1. Seed averaging of the tuned LightGBM (3 seeds). Teach: variance reduction, cheapest ensemble there is.

@@ -13,7 +13,7 @@ Use this competition as a structured learning experience for an intermediate ML 
 - **Task:** 3-class classification of `health_condition`: `at-risk` (86%), `unhealthy` (8.4%), `fit` (5.8%)
 - **Data:** 690,088 train rows, 295,753 test rows, 13 features (numeric: sleep_duration, heart_rate, bmi, calorie_expenditure, step_count, exercise_duration, water_intake; categorical: diet_type, stress_level, sleep_quality, physical_activity_level, smoking_alcohol, gender)
 - **Missing values:** substantial, in nearly every column (stress_level worst at ~12%)
-- **Metric:** accuracy (hard-label submissions; majority-class floor ≈ 0.859; leaderboard top ≈ 0.953)
+- **Metric:** balanced accuracy — mean of per-class recalls (hard-label submissions; majority-class floor = ⅓, verified by probe submission on 2026-07-18; leaderboard top ≈ 0.953). Every class is worth ⅓ of the score, so minority-class recall dominates strategy: class weights and per-class decision tuning are core, not afterthoughts.
 
 ## Working model
 
