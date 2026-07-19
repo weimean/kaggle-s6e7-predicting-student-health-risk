@@ -28,3 +28,14 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | T7 | robustness hedge | seed-avg LGBM + thresholds | 0.94961 | — | 0.94918 | final B |
 
 **Milestone 4 conclusion:** score arc 0.333 → 0.875 (GBM) → 0.949 (loss↔metric alignment) → 0.9497 (decision-rule alignment + blend). Nearly all points came from alignment, not sophistication. Final public LB 0.94946 (top ≈ 0.953).
+
+## Milestone 5 (extension: diversity + stacking)
+
+| # | Hypothesis | Change | CV | Δ | LB | Verdict |
+|---|-----------|--------|----|---|----|---------|
+| E5a | a third GBM implementation decorrelates cheaply | HistGradientBoosting, near-default, balanced weights | 0.94956 | +0.00062 | — | **best single model in project**; implementation diversity > parameter search |
+| E5b | an NN's smooth boundaries add diversity | sklearn MLP, impute+flags+one-hot+scale, majority undersampled, thresholds | 0.94465 | −0.00429 | — | most diverse (corr 0.78) but below quality floor; blend weight 0. Largest threshold gain (+0.0085) = plain-loss mis-centering |
+| E5c | 4-way blend | grid weights {lgbm 0.1, cat 0.2, hgb 0.7, mlp 0} + thresholds | **0.94990** | +0.00096 | **0.94978** | **new best; submitted** |
+| E5d | learned combiner beats fixed weights | LR stack on 12 OOF prob columns, balanced | 0.94985 | +0.00091 | — | statistical tie with blend; stacking needs many heterogeneous members to pay |
+
+**Final standing: public LB 0.94978 (CV 0.94990), top ≈ 0.953. Score arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498.**
