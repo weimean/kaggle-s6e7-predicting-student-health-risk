@@ -1,5 +1,12 @@
 # Kaggle Playground S6E7 — Predicting Student Health Risk
 
+![Kaggle](https://img.shields.io/badge/Kaggle-Playground_S6E7-20BEFF?logo=kaggle&logoColor=white)
+![Public LB](https://img.shields.io/badge/public_LB-0.95048-2a78d6)
+![Rank](https://img.shields.io/badge/rank-top_15.5%25_of_2192-2a78d6)
+![Experiments](https://img.shields.io/badge/experiments_logged-13-eb6834)
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-008300)
+
 A hypothesis-driven run at [Kaggle Playground S6E7](https://www.kaggle.com/competitions/playground-series-s6e7):
 3-class classification of student health condition (86% / 8.4% / 5.8% class split, 690k rows,
 13 features with heavy missingness), scored by **balanced accuracy**.
