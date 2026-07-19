@@ -39,3 +39,16 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | E5d | learned combiner beats fixed weights | LR stack on 12 OOF prob columns, balanced | 0.94985 | +0.00091 | — | statistical tie with blend; stacking needs many heterogeneous members to pay |
 
 **Final standing: public LB 0.94978 (CV 0.94990), top ≈ 0.953. Score arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498.**
+
+## Milestone 6 (last headroom: NN member + competitor intelligence)
+
+| # | Hypothesis | Change | CV | Δ | LB | Verdict |
+|---|-----------|--------|----|---|----|---------|
+| E6 | exact-value TE (the one verified public FE edge) lifts trees too | 8 exact-value cats → multiclass TE → LGBM | 0.94451 | −0.00443 | — | **hurts trees** — they split exact values natively; TE columns are noise to a booster. Public ablation was TE→NN, not TE→tree |
+| NN | torch MLP w/ embeddings + weighted CE (side venv, Intel-mac torch 2.2.2) | src/train_nn.py | 0.94819 | −0.00075 | — | real member (sklearn MLP was 0.936) but blend-neutral alone (corr 0.87–0.93) |
+| E7 | TE lifts NNs specifically (verified public combo) | TE cols into NN numeric block | 0.94831 | +0.00012 over NN | — | direction confirmed, magnitude needs true RealMLP (periodic embeddings, n_ens, EMA) |
+| E8 | 5-way blend prices diversity vs quality | grid {hgb 0.5, nn_te 0.25, lgbm 0.1, cat 0.1, lgbm_te 0.05} + thr(1.15, 1.15) | **0.95009** | +0.00019 | **0.95006** | **new best; >0.95 target met.** Both "failed" models are in the final blend on decorrelation value |
+
+**Competitor scan (6 top kernels):** target reverse-engineered as threshold rule (sleep<6h/stress/activity) + synthesis noise → honest ceiling ≈ 0.9506 single-model; missingness flags independently confirmed dead; class-weights + fixed prior correction over-correct (tuned search is safe); original external dataset a dead end; public LB >0.951 is shared-file blending with S6E6-style private-split risk.
+
+**Final: public LB 0.95006 (CV 0.95009). Arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498 → 0.9501.**
