@@ -249,3 +249,7 @@ Added 2026-07-19 after Milestone 4 landed at LB 0.94946 vs the >0.95 spec target
 - [ ] E5b: MLPClassifier on impute+flags+one-hot+standardized features (in-fold stats), majority class undersampled for balance, threshold-tuned.
 - [ ] 4-way blend weight grid (LGBM seed-avg, CatBoost, HGB, MLP) + threshold refit; compare vs LogisticRegression stacking on concatenated OOF probs.
 - [ ] Submit best; update `experiments.md`; commit.
+
+---
+
+**Status 2026-07-19: COMPLETE.** All tasks + extensions (milestones 5–7) executed. Final: public LB 0.95048 (CV 0.95036), rank ≈ 339/2192. Spec success criteria all met, including >0.95. Full record: experiments.md (E1–E13), README.md.
