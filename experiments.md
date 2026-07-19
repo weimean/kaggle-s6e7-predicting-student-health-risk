@@ -52,3 +52,15 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 **Competitor scan (6 top kernels):** target reverse-engineered as threshold rule (sleep<6h/stress/activity) + synthesis noise → honest ceiling ≈ 0.9506 single-model; missingness flags independently confirmed dead; class-weights + fixed prior correction over-correct (tuned search is safe); original external dataset a dead end; public LB >0.951 is shared-file blending with S6E6-style private-split risk.
 
 **Final: public LB 0.95006 (CV 0.95009). Arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498 → 0.9501.**
+
+## Milestone 7 (the queue from the competitor scan)
+
+| # | Hypothesis | Change | CV | Δ | LB | Verdict |
+|---|-----------|--------|----|---|----|---------|
+| E9 | CatBoost's ordered target stats are the tree-safe form of exact-value TE | ev_* cats fed natively to CatBoost | 0.94982 | +0.00059 | — | **keep — best single model of the project.** Same features, third function class, third different outcome |
+| E10 | true RealMLP reaches the published 0.9506 frontier | pytabkit RealMLP-TD, 6 epochs CPU, prior-corrected | 0.94731 | — | — | short of published (CPU budget); greedy blend weight 0 — quality floor law confirmed again |
+| E11 | HGB (blend weight 0.5) rewards tuning | 9-config grid, winner max_leaf_nodes=23, l2=1 | 0.94963 | +0.00007 | — | below bar; third "defaults were fine." Kept in pool at zero cost |
+| E12 | seed-averaging stabilizes the noisiest member | nn_te × seeds 42/1/2 | 0.94825 avg | — | — | steadier member for the blend |
+| E13 | greedy selection prices 8 members better than a grid | Caruana w/ replacement, 80 rounds | **0.95036** | +0.00027 | **0.95048** | **final: rank ~339/2192 (top 15.5%).** Thresholds converged to 1.0 — alignment migrated into the members |
+
+**Final standing: public LB 0.95048 (CV 0.95036). Arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498 → 0.9501 → 0.9505.**
