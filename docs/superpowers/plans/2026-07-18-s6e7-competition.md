@@ -236,3 +236,16 @@ Update `experiments.md`; verify final selection on the Kaggle site.
 git add notebooks/04-final.ipynb experiments.md
 git commit -m "Milestone 4: tuning, imbalance handling, ensemble, final submissions"
 ```
+
+---
+
+### Task 6: Notebook 05 — extension: diverse members + stacking (Milestone 5)
+
+Added 2026-07-19 after Milestone 4 landed at LB 0.94946 vs the >0.95 spec target. PyTorch unavailable (Intel Mac + Python 3.13 has no compatible wheels), so the NN member is sklearn's MLPClassifier.
+
+**Files:** Create `notebooks/05-stacking.ipynb`; continue `experiments.md`.
+
+- [ ] E5a: HistGradientBoostingClassifier (native NaN + categorical, `class_weight='balanced'`), same folds, cached OOF/test probs.
+- [ ] E5b: MLPClassifier on impute+flags+one-hot+standardized features (in-fold stats), majority class undersampled for balance, threshold-tuned.
+- [ ] 4-way blend weight grid (LGBM seed-avg, CatBoost, HGB, MLP) + threshold refit; compare vs LogisticRegression stacking on concatenated OOF probs.
+- [ ] Submit best; update `experiments.md`; commit.
