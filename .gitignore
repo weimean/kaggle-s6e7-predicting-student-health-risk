@@ -4,3 +4,4 @@ submissions/
 .ipynb_checkpoints/
 __pycache__/
 artifacts/
+catboost_info/
