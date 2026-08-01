@@ -32,7 +32,7 @@
 - [ ] **Step 1: Initialize uv project and add dependencies**
 
 ```bash
-cd /Users/tsoiwaimun/kaggle/playground-series-s6e7
+cd ~/kaggle/playground-series-s6e7
 uv init --bare --python 3.13
 uv add pandas numpy scikit-learn lightgbm xgboost catboost matplotlib seaborn optuna jupyter ipykernel
 ```
