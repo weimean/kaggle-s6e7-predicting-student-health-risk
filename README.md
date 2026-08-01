@@ -1,8 +1,8 @@
 # Kaggle Playground S6E7 — Predicting Student Health Risk
 
 ![Kaggle](https://img.shields.io/badge/Kaggle-Playground_S6E7-20BEFF?logo=kaggle&logoColor=white)
-![Public LB](https://img.shields.io/badge/public_LB-0.95048-2a78d6)
-![Rank](https://img.shields.io/badge/rank-top_15.5%25_of_2192-2a78d6)
+![Private LB](https://img.shields.io/badge/private_LB-0.95040-2a78d6)
+![Final Rank](https://img.shields.io/badge/final_rank-209_of_3356_%28top_6.2%25%29-2a78d6)
 ![Experiments](https://img.shields.io/badge/experiments_logged-13-eb6834)
 ![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-008300)
@@ -11,10 +11,12 @@ A hypothesis-driven run at [Kaggle Playground S6E7](https://www.kaggle.com/compe
 3-class classification of student health condition (86% / 8.4% / 5.8% class split, 690k rows,
 13 features with heavy missingness), scored by **balanced accuracy**.
 
-**Final: public LB 0.95048 — top 15.5% of 2,192 teams — with every point of the score
-accounted for in an [experiment ledger](experiments.md).** Thirteen logged experiments,
-five falsified hypotheses, seven submissions, and a cross-validation setup that never
-missed the leaderboard by more than 0.003.
+**Final: private LB 0.95040 — rank 209 of 3,356 teams (top 6.2%) — with every point of
+the score accounted for in an [experiment ledger](experiments.md).** Thirteen logged
+experiments, five falsified hypotheses, seven submissions, and a cross-validation setup
+that never missed the leaderboard, public or private, by more than 0.003. When the
+private leaderboard resolved, the final CV estimate (0.95036) was off by 0.00004, and
+the entry climbed 386 places past public-leaderboard chasers.
 
 ![Score arc](assets/score-arc.png)
 
@@ -28,6 +30,7 @@ missed the leaderboard by more than 0.003.
 | + cross-implementation blend | 0.9498 | Implementation diversity (CatBoost, HistGradientBoosting) |
 | + torch NN member | 0.9501 | Function-class diversity |
 | + CatBoost-native exact-value TE + greedy blend | **0.9505** | The one verified feature edge, encoded the tree-safe way |
+| Private leaderboard reveal | **0.95040** | Rank 209 of 3,356 — up 386 places on the shakeup, 0.00004 from the CV estimate |
 
 ## The method
 
@@ -39,7 +42,9 @@ the wrong belief and reshaped the entire strategy (notebook 01, §9).
 **Treat cross-validation as an instrument, and calibrate it.** One fixed 5-fold stratified
 assignment, persisted to disk and asserted identical in every later notebook. Every model
 reports out-of-fold balanced accuracy on those folds; the fold spread sets the noise floor
-(±0.0005) that decides what counts as a real improvement.
+(±0.0005) that decides what counts as a real improvement. The instrument passed its final
+test at the private-leaderboard reveal: 0.95040 against a CV estimate of 0.95036, while
+teams that had tuned against the public leaderboard fell past us on the way down.
 
 ![CV vs LB calibration](assets/cv-lb-calibration.png)
 
@@ -77,7 +82,7 @@ a below-par NN, weight 0.15) still earn places on decorrelation value alone.
 
 1. **Probe the metric before trusting it.** One "dumb" submission distinguished accuracy from balanced accuracy and reshaped the whole strategy.
 2. **Alignment beats sophistication.** Loss↔metric (class weights) and decision-rule↔metric (thresholds) earned more than every clever idea combined.
-3. **A CV you trust is the actual asset.** Fixed folds, OOF everything; seven submissions, never off by more than 0.003.
+3. **A CV you trust is the actual asset.** Fixed folds, OOF everything; seven submissions, never off by more than 0.003 on either leaderboard — and a 386-place climb when the private board punished public-LB overfitting.
 4. **Negative results are purchases.** Imputation −0.041 (destroys missingness signal), feature ladder 0, tuning ≤0 three times — each redirected effort with evidence.
 5. **Features and function classes are a joint hypothesis.** Exact-value target encoding: −0.0044 on LightGBM, +0.0001 on our MLP, **+0.0006 via CatBoost's ordered statistics** — same idea, three outcomes.
 6. **Diversity pays only above a quality floor.** Weak-but-different members were zeroed by every combiner; the committee prices contribution, not novelty.

@@ -16,8 +16,9 @@ competitors' edge?"), and made every go/no-go call — including when to extend 
 original plan and when to stop.
 
 The notebooks read as lessons because that's what they were: the deliverable was
-understanding first, leaderboard position second. The final rank (top 15.5%) is the
-evidence that the understanding was real.
+understanding first, leaderboard position second. The final rank (209 of 3,356 on the
+private leaderboard, top 6.2%, a 386-place climb at the reveal) is the evidence that
+the understanding was real.
 
 ## Spec → plan → milestones
 

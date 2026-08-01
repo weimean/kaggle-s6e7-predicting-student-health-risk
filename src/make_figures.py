@@ -59,10 +59,11 @@ def score_arc():
     zx, zcv = x[2:], cv[2:]
     a2.plot(zx, zcv, drawstyle='steps-post', color=BLUE, lw=2, zorder=3)
     a2.scatter(zx, zcv, color=BLUE, s=28, zorder=4)
-    a2.scatter([zx[-1]], [0.95048], color=ORANGE, s=46, zorder=5, marker='D')
-    a2.annotate('final public LB 0.95048\n(top 15.5% of 2192)', (zx[-1], 0.95048),
-                xytext=(3.6, 0.95055), fontsize=8.5, color=INK, ha='right',
-                fontweight='bold')
+    a2.scatter([zx[-1] + 0.25], [0.95040], color=ORANGE, s=46, zorder=5,
+               marker='D')
+    a2.annotate('final private LB 0.95040\nrank 209 of 3356 (top 6.2%)',
+                (zx[-1] + 0.25, 0.95040), xytext=(3.6, 0.95055), fontsize=8.5,
+                color=INK, ha='right', fontweight='bold')
     for xi, yi in zip(zx, zcv):
         a2.annotate(f'{yi:.5f}', (xi, yi), xytext=(0, -13),
                     textcoords='offset points', ha='center', fontsize=7.5,
@@ -80,36 +81,41 @@ def score_arc():
 
 
 def cv_lb_calibration():
-    subs = [('nb02 LightGBM', 0.94894, 0.94667),
-            ('nb03 features', 0.94916, 0.94942),
-            ('nb04 blend', 0.94968, 0.94946),
-            ('nb04 robust', 0.94961, 0.94918),
-            ('nb05 blend', 0.94990, 0.94978),
-            ('nb06 +NN', 0.95009, 0.95006),
-            ('nb07 grand', 0.95036, 0.95048)]
-    names, cvs, lbs = zip(*subs)
+    subs = [('nb02 LightGBM', 0.94894, 0.94667, 0.94704),
+            ('nb03 features', 0.94916, 0.94942, 0.94949),
+            ('nb04 blend', 0.94968, 0.94946, 0.94965),
+            ('nb04 robust', 0.94961, 0.94918, 0.94964),
+            ('nb05 blend', 0.94990, 0.94978, 0.95000),
+            ('nb06 +NN', 0.95009, 0.95006, 0.95002),
+            ('nb07 grand', 0.95036, 0.95048, 0.95040)]
+    names, cvs, pubs, privs = zip(*subs)
     lo, hi = 0.9460, 0.9512
 
     fig, ax = plt.subplots(figsize=(5.4, 5.0))
     ax.plot([lo, hi], [lo, hi], color='#c9c8c3', lw=1, ls='--', zorder=1)
     ax.fill_between([lo, hi], [lo - 0.003, hi - 0.003], [lo + 0.003, hi + 0.003],
                     color=BLUE, alpha=0.06, zorder=0)
-    ax.scatter(cvs, lbs, color=BLUE, s=42, zorder=3)
+    for c, pu, pr in zip(cvs, pubs, privs):
+        ax.plot([c, c], [pu, pr], color='#c9c8c3', lw=0.9, zorder=2)
+    ax.scatter(cvs, pubs, color=BLUE, s=42, zorder=3, label='public LB')
+    ax.scatter(cvs, privs, color=ORANGE, s=38, zorder=3, marker='D',
+               label='private LB')
     offsets = {'nb02 LightGBM': (8, -3), 'nb03 features': (-8, 6),
-               'nb04 blend': (8, -10), 'nb04 robust': (8, -3),
-               'nb05 blend': (8, -3), 'nb06 +NN': (8, -3),
+               'nb04 blend': (8, -10), 'nb04 robust': (-8, 3),
+               'nb05 blend': (8, -6), 'nb06 +NN': (8, -3),
                'nb07 grand': (-8, 6)}
-    for n, c, l in subs:
+    for n, c, pu, pr in subs:
         dx, dy = offsets[n]
-        ax.annotate(n, (c, l), xytext=(dx, dy), textcoords='offset points',
+        ax.annotate(n, (c, pu), xytext=(dx, dy), textcoords='offset points',
                     fontsize=8, color=INK2,
                     ha='left' if dx > 0 else 'right')
     ax.annotate('y = x\n(CV predicts LB)', (0.9505, 0.9508), fontsize=8,
                 color=INK2, ha='right')
+    ax.legend(loc='lower right', fontsize=8, frameon=False)
     ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
     ax.set_xlabel('cross-validation (OOF balanced accuracy)')
-    ax.set_ylabel('public leaderboard')
-    ax.set_title('CV as a calibrated instrument\nall 7 submissions within ±0.003 (shaded)')
+    ax.set_ylabel('leaderboard score')
+    ax.set_title('CV as a calibrated instrument\nall 7 submissions, public and private, within ±0.003 (shaded)')
     ax.grid(color='#ebeae6', lw=0.7, zorder=0)
     ax.set_aspect('equal')
     fig.tight_layout()
