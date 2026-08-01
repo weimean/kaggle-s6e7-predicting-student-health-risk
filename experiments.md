@@ -13,7 +13,7 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | E3 | ordinal encoding of 3 ordered cats lets one threshold express "≥ medium" | stress/sleep_quality/activity → ordered ints | 0.94895 | +0.00001 | — | drop (confirmed-null: 3-level cats fully covered by native handling) |
 | E4 | explicit interaction axes shortcut tree-approximated conjunctions (EDA §4) | 5 ratio/product features (stress×sleep, activity×steps, …) | 0.94916 | +0.00022 | 0.94942 | drop (best of ladder, still below bar; booster already approximates) |
 
-**Milestone 3 conclusion:** zero keepers — baseline features carry forward. Signal is fully exposed to the GBM; remaining gains must come from the model side (trees cap, tuning, per-class thresholds, ensembling). Note: CV↔LB gap flipped sign (+0.0023 → −0.0003), so treat the gap as noise ≈ ±0.003, decide on CV only.
+**Milestone 3 conclusion:** zero keepers; baseline features carry forward. Signal is fully exposed to the GBM; remaining gains must come from the model side (trees cap, tuning, per-class thresholds, ensembling). Note: CV↔LB gap flipped sign (+0.0023 → −0.0003), so treat the gap as noise ≈ ±0.003, decide on CV only.
 
 ## Milestone 4 (model-side levers; CV numbers are thresholded where noted)
 
@@ -27,7 +27,7 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | T6 | blend + re-fit thresholds | weights + multipliers on OOF | **0.94968** | +0.00074 | **0.94946** | **final A** |
 | T7 | robustness hedge | seed-avg LGBM + thresholds | 0.94961 | — | 0.94918 | final B |
 
-**Milestone 4 conclusion:** score arc 0.333 → 0.875 (GBM) → 0.949 (loss↔metric alignment) → 0.9497 (decision-rule alignment + blend). Nearly all points came from alignment, not sophistication. Final public LB 0.94946 (top ≈ 0.953).
+**Milestone 4 conclusion:** score arc 0.333 → 0.875 (GBM) → 0.949 (loss↔metric alignment) → 0.9497 (decision-rule alignment + blend). Alignment earned nearly all of the points. Final public LB 0.94946 (top ≈ 0.953).
 
 ## Milestone 5 (extension: diversity + stacking)
 
@@ -61,7 +61,7 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | E10 | true RealMLP reaches the published 0.9506 frontier | pytabkit RealMLP-TD, 6 epochs CPU, prior-corrected | 0.94731 | — | — | short of published (CPU budget); greedy blend weight 0 — quality floor law confirmed again |
 | E11 | HGB (blend weight 0.5) rewards tuning | 9-config grid, winner max_leaf_nodes=23, l2=1 | 0.94963 | +0.00007 | — | below bar; third "defaults were fine." Kept in pool at zero cost |
 | E12 | seed-averaging stabilizes the noisiest member | nn_te × seeds 42/1/2 | 0.94825 avg | — | — | steadier member for the blend |
-| E13 | greedy selection prices 8 members better than a grid | Caruana w/ replacement, 80 rounds | **0.95036** | +0.00027 | **0.95048** | **final; public rank ~339/2192 at the time.** Thresholds converged to 1.0 — alignment migrated into the members |
+| E13 | greedy selection prices 8 members better than a grid | Caruana w/ replacement, 80 rounds | **0.95036** | +0.00027 | **0.95048** | **final; public rank ~339/2192 at the time.** Thresholds converged to 1.0; the members already carried the alignment |
 
 **Final standing: public LB 0.95048 (CV 0.95036). Arc: 0.333 → 0.875 → 0.949 → 0.9497 → 0.9498 → 0.9501 → 0.9505.**
 
@@ -77,4 +77,4 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | 06 nn blend | 0.95009 | 0.95006 | 0.95002 |
 | 07 grand blend | 0.95036 | 0.95048 | **0.95040** |
 
-**Final: private LB 0.95040 — rank 209 of 3356 (top 6.2%), up 386 places from public rank 595.** CV predicted the private score within 0.00004. The shakeup the competitor scan warned about (shared-file public blends carrying S6E6-style private-split risk) happened: the public blends above us fell, the CV-anchored entry rose.
+**Final: private LB 0.95040, rank 209 of 3356 (top 6.2%), up 386 places from public rank 595.** CV predicted the private score within 0.00004. The shakeup the competitor scan warned about (shared-file public blends carrying S6E6-style private-split risk) happened: the public blends above us fell and we rose.

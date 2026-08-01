@@ -1,4 +1,4 @@
-# Kaggle Playground S6E7 — Predicting Student Health Risk
+# Kaggle Playground S6E7: Predicting Student Health Risk
 
 ![Kaggle](https://img.shields.io/badge/Kaggle-Playground_S6E7-20BEFF?logo=kaggle&logoColor=white)
 ![Private LB](https://img.shields.io/badge/private_LB-0.95040-2a78d6)
@@ -11,58 +11,59 @@ A hypothesis-driven run at [Kaggle Playground S6E7](https://www.kaggle.com/compe
 3-class classification of student health condition (86% / 8.4% / 5.8% class split, 690k rows,
 13 features with heavy missingness), scored by **balanced accuracy**.
 
-**Final: private LB 0.95040 — rank 209 of 3,356 teams (top 6.2%) — with every point of
-the score accounted for in an [experiment ledger](experiments.md).** Thirteen logged
-experiments, five falsified hypotheses, seven submissions, and a cross-validation setup
-that never missed the leaderboard, public or private, by more than 0.003. When the
-private leaderboard resolved, the final CV estimate (0.95036) was off by 0.00004, and
-the entry climbed 386 places past public-leaderboard chasers.
+**Final: private LB 0.95040, rank 209 of 3,356 teams (top 6.2%), with every point of the
+score accounted for in an [experiment ledger](experiments.md).** Thirteen logged
+experiments, five falsified hypotheses, seven submissions. Our cross-validation never
+missed either leaderboard by more than 0.003; at the private reveal it predicted the
+final score within 0.00004, and we climbed 386 places past teams tuned to the public
+board.
 
 ![Score arc](assets/score-arc.png)
 
 | Stage | Score | What earned it |
 |---|---|---|
-| Majority baseline (metric probe) | 0.333 | Discovered the metric is balanced accuracy, not accuracy |
+| Majority baseline (metric probe) | 0.333 | Discovered the real metric: balanced accuracy |
 | LightGBM, default loss | 0.875 | A GBM with sane defaults |
 | + class-weighted loss | 0.949 | **Align objective with metric** (+0.074, the biggest lever) |
-| + features / + tuning | 0.949 | Two measured zeros — honest redirects, not failures |
+| + features / + tuning | 0.949 | Two measured zeros that redirected effort |
 | + per-class thresholds | 0.9496 | **Align decision rule with metric** |
 | + cross-implementation blend | 0.9498 | Implementation diversity (CatBoost, HistGradientBoosting) |
 | + torch NN member | 0.9501 | Function-class diversity |
 | + CatBoost-native exact-value TE + greedy blend | **0.9505** | The one verified feature edge, encoded the tree-safe way |
-| Private leaderboard reveal | **0.95040** | Rank 209 of 3,356 — up 386 places on the shakeup, 0.00004 from the CV estimate |
+| Private leaderboard reveal | **0.95040** | Rank 209 of 3,356: up 386 places on the shakeup, 0.00004 from the CV estimate |
 
 ## The method
 
-**Probe the metric before trusting it.** The first submission predicted the majority class
-for every row — not as a throwaway, but as an experiment: plain accuracy predicted a 0.859
-score, balanced accuracy predicted exactly ⅓. It scored 0.33333. One submission falsified
-the wrong belief and reshaped the entire strategy (notebook 01, §9).
+**Probe the metric before trusting it.** The first submission predicted the majority
+class for every row. This was an experiment with two competing predictions: 0.859 under
+plain accuracy, ⅓ under balanced accuracy. It scored 0.33333. One cheap submission
+corrected our assumed metric and reshaped the strategy (notebook 01, §9).
 
-**Treat cross-validation as an instrument, and calibrate it.** One fixed 5-fold stratified
-assignment, persisted to disk and asserted identical in every later notebook. Every model
-reports out-of-fold balanced accuracy on those folds; the fold spread sets the noise floor
-(±0.0005) that decides what counts as a real improvement. The instrument passed its final
-test at the private-leaderboard reveal: 0.95040 against a CV estimate of 0.95036, while
-teams that had tuned against the public leaderboard fell past us on the way down.
+**Treat cross-validation as an instrument, and calibrate it.** We fixed one 5-fold
+stratified assignment, persisted it to disk, and asserted it identical in every later
+notebook. Every model reports out-of-fold balanced accuracy on those folds. We measured
+the noise floor (±0.0005) from the fold spread and used it as the bar for a real
+improvement. The CV held at the private-leaderboard reveal: 0.95040 against an estimate
+of 0.95036, while teams tuned against the public leaderboard dropped below us.
 
 ![CV vs LB calibration](assets/cv-lb-calibration.png)
 
 **Run everything as a ledger.** Every idea enters [experiments.md](experiments.md) as
-*hypothesis → one change → CV → keep/drop*. Keepers must clear the noise floor; drops are
-logged with the same care because a falsified hypothesis about this dataset is knowledge.
-The ledger's two zero-rows (feature engineering, hyperparameter tuning) redirected effort
-to where the score actually lived: alignment and diversity.
+*hypothesis → one change → CV → keep/drop*. Keepers must clear the noise floor. We log
+drops with the same care, because a falsified hypothesis about this dataset is
+knowledge. After feature engineering and hyperparameter tuning both measured zero, we
+spent the remaining effort on alignment and diversity.
 
-**Alignment before sophistication.** The two largest gains were not clever models — they
-were making the training loss (+0.074, class weights) and the decision rule (+0.0014,
-per-class thresholds fit on OOF probabilities) match the metric. By the final ensemble,
-the threshold search converged to exactly 1.0: alignment had migrated into the members.
+**Alignment before sophistication.** The two largest gains came from making the
+training loss (+0.074, class weights) and the decision rule (+0.0014, per-class
+thresholds fit on OOF probabilities) match the metric. By the final ensemble the
+threshold search converged to 1.0; the members themselves already carried the
+alignment.
 
-**Then buy diversity — and price it honestly.** Blending only pays when members make
+**Then buy diversity, and price it honestly.** Blending pays when members make
 different mistakes. The final greedy-selected committee weights quality *and*
-decorrelation; two "failed" models (a LightGBM hurt by naive target encoding, weight 0.01;
-a below-par NN, weight 0.15) still earn places on decorrelation value alone.
+decorrelation; two "failed" models (a LightGBM hurt by naive target encoding, weight
+0.01; a below-par NN, weight 0.15) kept their places on decorrelation value alone.
 
 ![Member correlations](assets/member-correlations.png)
 
@@ -70,32 +71,32 @@ a below-par NN, weight 0.15) still earn places on decorrelation value alone.
 
 | Notebook | One-line finding |
 |---|---|
-| [01 — EDA + baseline](notebooks/01-eda.ipynb) | `stress_level` nearly determines the minority classes; `bmi` missingness is itself a signal; the baseline probe exposes the real metric |
-| [02 — CV harness](notebooks/02-baseline-cv.ipynb) | The metric defines the model: class weights trade 5 points of majority recall for 12–15 on each minority — plain accuracy hates it, balanced accuracy pays +0.074 |
+| [01 — EDA + baseline](notebooks/01-eda.ipynb) | `stress_level` nearly determines the minority classes; `bmi` missingness is a signal; the baseline probe exposes the real metric |
+| [02 — CV harness](notebooks/02-baseline-cv.ipynb) | Class weights trade 5 points of majority recall for 12–15 on each minority; plain accuracy punishes the trade, balanced accuracy pays +0.074 |
 | [03 — Feature experiments](notebooks/03-features.ipynb) | Five hypotheses, zero keepers; naive imputation destroys 4 points by erasing the missingness signal |
-| [04 — Tuning, thresholds, ensemble](notebooks/04-final.ipynb) | Tuning loses to defaults, but its better-*ranked* probabilities win once thresholds are applied — compare models under the deployed decision rule |
-| [05 — More members, stacking](notebooks/05-stacking.ipynb) | Implementation diversity beats parameter search; diversity only pays above a quality floor |
-| [06 — NN + competitor intelligence](notebooks/06-headroom.ipynb) | Exact-value target encoding: −0.0044 on a tree, +0.0001 on an MLP — features and function classes are a joint hypothesis |
+| [04 — Tuning, thresholds, ensemble](notebooks/04-final.ipynb) | Tuning loses to defaults, but its better-*ranked* probabilities win once thresholds apply; compare models under the deployed decision rule |
+| [05 — More members, stacking](notebooks/05-stacking.ipynb) | Implementation diversity beats parameter search; diversity pays only above a quality floor |
+| [06 — NN + competitor intelligence](notebooks/06-headroom.ipynb) | Exact-value target encoding: −0.0044 on a tree, +0.0001 on an MLP; features and function classes are a joint hypothesis |
 | [07 — Final push](notebooks/07-final-push.ipynb) | CatBoost's ordered target statistics encode the same features *safely* (+0.0006, best single model); greedy selection prices an 8-member committee |
 
 ## Lessons the ledger paid for
 
-1. **Probe the metric before trusting it.** One "dumb" submission distinguished accuracy from balanced accuracy and reshaped the whole strategy.
-2. **Alignment beats sophistication.** Loss↔metric (class weights) and decision-rule↔metric (thresholds) earned more than every clever idea combined.
-3. **A CV you trust is the actual asset.** Fixed folds, OOF everything; seven submissions, never off by more than 0.003 on either leaderboard — and a 386-place climb when the private board punished public-LB overfitting.
-4. **Negative results are purchases.** Imputation −0.041 (destroys missingness signal), feature ladder 0, tuning ≤0 three times — each redirected effort with evidence.
-5. **Features and function classes are a joint hypothesis.** Exact-value target encoding: −0.0044 on LightGBM, +0.0001 on our MLP, **+0.0006 via CatBoost's ordered statistics** — same idea, three outcomes.
-6. **Diversity pays only above a quality floor.** Weak-but-different members were zeroed by every combiner; the committee prices contribution, not novelty.
+1. **Probe the metric before trusting it.** One cheap submission distinguished accuracy from balanced accuracy and reshaped the strategy.
+2. **Align with the metric before adding sophistication.** Loss↔metric (class weights) and decision-rule↔metric (thresholds) earned more than every clever idea combined.
+3. **A CV you trust is the asset.** Fixed folds, OOF everything; seven submissions within 0.003 on both leaderboards, and a 386-place climb when the private board punished public-LB overfitting.
+4. **Log negative results.** Imputation −0.041 (it erases the missingness signal), feature ladder 0, tuning ≤0 three times; each redirected effort with evidence.
+5. **Features and function classes are a joint hypothesis.** Exact-value target encoding: −0.0044 on LightGBM, +0.0001 on our MLP, **+0.0006 via CatBoost's ordered statistics**. Same idea, three outcomes.
+6. **Diversity pays only above a quality floor.** Every combiner zeroed the weak-but-different members; the committee prices contribution.
 
 ## How this was built
 
-This project was a deliberate experiment in AI-paired ML: I worked with Claude
-(via Claude Code) in an *explain-as-we-build* arrangement — Claude wrote the code and
-analysis and proposed hypotheses; I set the direction, questioned the reasoning at every
-milestone checkpoint, and made every go/no-go call, from the metric-probe strategy to
-which experiments were worth compute to when to stop. The workflow that made this
-productive — spec → plan → milestones, the ledger contract, artifact caching, parallel
-training runs, a competitor-scouting agent — is documented in [WORKFLOW.md](WORKFLOW.md).
+This project was also an experiment in AI-paired ML: I worked with Claude (via Claude
+Code) in an *explain-as-we-build* arrangement. Claude wrote the code and analysis and
+proposed hypotheses; I set the direction, questioned the reasoning at every milestone
+checkpoint, and made every go/no-go call, from the metric-probe strategy to which
+experiments were worth compute to when to stop. [WORKFLOW.md](WORKFLOW.md) documents
+the mechanics that made this productive: spec → plan → milestones, the ledger contract,
+artifact caching, parallel training runs, and a competitor-scouting agent.
 
 ## Reproduce
 
@@ -113,7 +114,7 @@ uv run python src/make_figures.py         # regenerate README figures
 Repo layout:
 
 ```
-notebooks/01..07     the analysis, in order — written to be read
+notebooks/01..07     the analysis, in reading order
 experiments.md       the complete hypothesis ledger (E1–E13)
 src/                 training scripts for the heavy jobs + figure generation
 docs/superpowers/    design specs and implementation plans (process artifacts)

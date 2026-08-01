@@ -73,7 +73,7 @@ def score_arc():
     a2.set_title('The grind above 0.949, zoomed')
     a2.grid(axis='y', color='#ebeae6', lw=0.7, zorder=0)
 
-    fig.suptitle('Score arc — every step is a ledger entry', fontsize=12,
+    fig.suptitle('Score arc: every step is a ledger entry', fontsize=12,
                  fontweight='bold', y=1.0)
     fig.tight_layout()
     fig.savefig(ASSETS / 'score-arc.png', bbox_inches='tight')
