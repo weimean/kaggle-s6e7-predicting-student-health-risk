@@ -111,6 +111,12 @@ kaggle competitions download playground-series-s6e7 -p data && unzip -d data dat
 uv run python src/make_figures.py         # regenerate README figures
 ```
 
+**Data and licensing.** The competition dataset belongs to Kaggle / Google LLC, licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), and stays out of this repo
+(`data/` is gitignored); the download command above fetches it from the
+[competition page](https://www.kaggle.com/competitions/playground-series-s6e7/data).
+The MIT license here covers the code and writing in this repo.
+
 Repo layout:
 
 ```
