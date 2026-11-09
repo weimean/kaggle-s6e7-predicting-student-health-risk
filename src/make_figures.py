@@ -61,7 +61,7 @@ def score_arc():
     a2.scatter(zx, zcv, color=BLUE, s=28, zorder=4)
     a2.scatter([zx[-1] + 0.25], [0.95040], color=ORANGE, s=46, zorder=5,
                marker='D')
-    a2.annotate('final private LB 0.95040\nrank 209 of 3356 (top 6.2%)',
+    a2.annotate('final private LB 0.95040\nrank 209 of 3355 (top 6.2%)',
                 (zx[-1] + 0.25, 0.95040), xytext=(3.6, 0.95055), fontsize=8.5,
                 color=INK, ha='right', fontweight='bold')
     for xi, yi in zip(zx, zcv):
