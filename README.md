@@ -2,7 +2,7 @@
 
 ![Kaggle](https://img.shields.io/badge/Kaggle-Playground_S6E7-20BEFF?logo=kaggle&logoColor=white)
 ![Private LB](https://img.shields.io/badge/private_LB-0.95040-2a78d6)
-![Final Rank](https://img.shields.io/badge/final_rank-209_of_3356_%28top_6.2%25%29-2a78d6)
+![Final Rank](https://img.shields.io/badge/final_rank-209_of_3355_%28top_6.2%25%29-2a78d6)
 ![Experiments](https://img.shields.io/badge/experiments_logged-13-eb6834)
 ![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-008300)
@@ -11,7 +11,7 @@ A hypothesis-driven run at [Kaggle Playground S6E7](https://www.kaggle.com/compe
 3-class classification of student health condition (86% / 8.4% / 5.8% class split, 690k rows,
 13 features with heavy missingness), scored by **balanced accuracy**.
 
-**Final: private LB 0.95040, rank 209 of 3,356 teams (top 6.2%), with every point of the
+**Final: private LB 0.95040, rank 209 of 3,355 teams (top 6.2%), with every point of the
 score accounted for in an [experiment ledger](experiments.md).** Thirteen logged
 experiments, five falsified hypotheses, seven submissions. Our cross-validation never
 missed either leaderboard by more than 0.003; at the private reveal it predicted the
@@ -30,7 +30,7 @@ board.
 | + cross-implementation blend | 0.9498 | Implementation diversity (CatBoost, HistGradientBoosting) |
 | + torch NN member | 0.9501 | Function-class diversity |
 | + CatBoost-native exact-value TE + greedy blend | **0.9505** | The one verified feature edge, encoded the tree-safe way |
-| Private leaderboard reveal | **0.95040** | Rank 209 of 3,356: up 386 places on the shakeup, 0.00004 from the CV estimate |
+| Private leaderboard reveal | **0.95040** | Rank 209 of 3,355: up 386 places on the shakeup, 0.00004 from the CV estimate |
 
 ## The method
 

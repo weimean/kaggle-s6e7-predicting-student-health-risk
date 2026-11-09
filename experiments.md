@@ -77,4 +77,4 @@ Keep-rule: an experiment is kept only if ΔCV ≥ +0.0005 (≈ OOF-level standar
 | 06 nn blend | 0.95009 | 0.95006 | 0.95002 |
 | 07 grand blend | 0.95036 | 0.95048 | **0.95040** |
 
-**Final: private LB 0.95040, rank 209 of 3356 (top 6.2%), up 386 places from public rank 595.** CV predicted the private score within 0.00004. The shakeup the competitor scan warned about (shared-file public blends carrying S6E6-style private-split risk) happened: the public blends above us fell and we rose.
+**Final: private LB 0.95040, rank 209 of 3355 (top 6.2%), up 386 places from public rank 595.** CV predicted the private score within 0.00004. The shakeup the competitor scan warned about (shared-file public blends carrying S6E6-style private-split risk) happened: the public blends above us fell and we rose.
